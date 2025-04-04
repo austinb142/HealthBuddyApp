@@ -2,4 +2,16 @@
 <resources>
 
     <style name="Theme.HealthBuddyApp" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.HealthBuddyApp.Login"
+        parent="Theme.MaterialComponents.DayNight.NoActionBar"></style>
+
+
+    <!-- Base application theme. -->
+    <!-- <style name="Theme.HealthBuddyApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!- Customize your light theme here. -->
+        
+
+    <!-- <style name="Theme.HealthBuddyApp.Login" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/my_light_primary</item>
+    </style> -->
 </resources>

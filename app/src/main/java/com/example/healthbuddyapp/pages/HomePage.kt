@@ -35,6 +35,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is AuthState.Unauthenticated -> navController.navigate("login")
+            //is AuthState.Authenticated -> navController.navigate("create_username")
             else -> Unit
         }
     }

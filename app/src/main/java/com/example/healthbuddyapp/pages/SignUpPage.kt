@@ -34,6 +34,9 @@ fun SignUpPage(modifier: Modifier = Modifier, navController: NavController, auth
     var password by remember {
         mutableStateOf("")
     }
+    var username by remember {
+        mutableStateOf("")
+    }
 
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
@@ -48,12 +51,12 @@ fun SignUpPage(modifier: Modifier = Modifier, navController: NavController, auth
         }
     }
 
-    //design the login page
+    //design the signup page
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ){  //Login Page Label
+    ){  //Signup Page Label
         Text(text = "Sign Up Page", fontSize = 32.sp)
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(  //Email Field to enter email
@@ -66,7 +69,17 @@ fun SignUpPage(modifier: Modifier = Modifier, navController: NavController, auth
 
             }
         )
+        Spacer(modifier = Modifier.height(8.dp))
 
+        OutlinedTextField(  //username field to enter
+            value = username,
+            onValueChange = {
+                username = it
+            },
+            label = {
+                Text(text = "Username")
+            }
+        )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(  //password field to enter password
@@ -78,12 +91,15 @@ fun SignUpPage(modifier: Modifier = Modifier, navController: NavController, auth
                 Text(text = "Password")
             }
         )
+
         //Login Button
         Spacer(modifier = Modifier.height(16.dp))
 
+
+
         Button(onClick = {
 
-            authViewModel.signup(email, password)
+            authViewModel.signup(email, username, password)
 
         },
             enabled = authState.value != AuthState.Loading

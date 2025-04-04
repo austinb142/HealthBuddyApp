@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
-    //alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -38,15 +37,15 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
 dependencies {
 
-
     //implementation("androidx.credentials:credentials:1.5.0")
-    //implementation("com.google.firebase:firebase-bom:33.10.0")
-    //implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-bom:33.10.0")
+    implementation("com.google.firebase:firebase-database")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -61,8 +60,12 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.runtime.livedata)
-    //implementation(libs.firebase.database)
-    //implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.firebase.database)
     //implementation(libs.androidx.appcompat)
     //implementation(libs.material)
     //implementation(libs.androidx.activity)
