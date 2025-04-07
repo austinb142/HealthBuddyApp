@@ -1,5 +1,6 @@
 package com.example.healthbuddyapp
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
+    private val authManager = AuthManager()
 
     init {
         checkAuthStatus()
@@ -44,23 +46,29 @@ class AuthViewModel : ViewModel() {
     }
 
     //signup(email, password)
-    fun signup(email: String, password: String) {
+    fun signup(email: String, username: String, password: String) {
 
         //if the email or password field is empty
         if (email.isEmpty() || password.isEmpty()) {
             _authState.value = AuthState.Error("Email and password cannot be empty")
             return
         }
-        _authState.value = AuthState.Loading
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _authState.value = AuthState.Authenticated
-                } else {
-                    _authState.value =
-                        AuthState.Error(task.exception?.message ?: "Sumting wong")
-                }
-            }
+
+        Log.d("AuthViewModel", "signUp() called")
+        Log.d("AuthViewModel", "  Email: $email")
+        Log.d("AuthViewModel", "  Password: $password")
+        Log.d("AuthViewModel", "  Username: $username")
+
+        authManager.createUser(email, username, password,
+            onSuccess = {
+                println("Signup successful")
+                _authState.value = AuthState.Authenticated
+            },
+            onFailure = { exception ->
+                println("Signup Failure: ${exception.message}")
+                _authState.value = AuthState.Unauthenticated
+            })
+
     }
 
     //logout()
@@ -76,3 +84,4 @@ sealed class AuthState {
     object Loading : AuthState()
     data class Error(val message: String) : AuthState()
 }
+
