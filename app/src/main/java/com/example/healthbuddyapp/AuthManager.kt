@@ -1,6 +1,7 @@
 package com.example.healthbuddyapp
 
 import android.util.Log
+import androidx.compose.runtime.Composable
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -16,7 +17,7 @@ class AuthManager {
         email: String,
         username: String,
         password: String,
-        onSuccess: () -> Unit,
+        onSuccess: @Composable () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
         Log.d("AuthManager", "createUser() called")

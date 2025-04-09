@@ -29,13 +29,8 @@ import com.example.healthbuddyapp.AuthState
 @Composable
 fun LoginPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
 
-    var email by remember {
-        mutableStateOf("")
-    }
-    var password by remember {
-        mutableStateOf("")
-    }
-
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current

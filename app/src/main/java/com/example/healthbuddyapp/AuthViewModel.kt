@@ -4,7 +4,12 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -23,6 +28,29 @@ class AuthViewModel : ViewModel() {
         } else {
             _authState.value = AuthState.Unauthenticated
         }
+    }
+
+    //UserProfile data class for storing user data on RTDB
+    data class UserProfile(val email: String = "", val username: String = "")
+
+    private val _userProfile = MutableLiveData<UserProfile>()
+    val userProfile: LiveData<UserProfile> = _userProfile
+
+    //function for fetching user data from RTDB
+    fun getUserProfile()
+    {
+        val uid = auth.currentUser?.uid ?: return
+        val ref = FirebaseDatabase.getInstance().getReference("users").child(uid)
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val email = snapshot.child("email").getValue(String::class.java) ?: ""
+                val username = snapshot.child("username").getValue(String::class.java) ?: ""
+                _userProfile.value = UserProfile(email, username)
+            }
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error
+            }
+        })
     }
 
     //login(username, password)
@@ -55,6 +83,8 @@ class AuthViewModel : ViewModel() {
             return
         }
 
+
+
         Log.d("AuthViewModel", "signUp() called")
         Log.d("AuthViewModel", "  Email: $email")
         Log.d("AuthViewModel", "  Password: $password")
@@ -65,6 +95,11 @@ class AuthViewModel : ViewModel() {
             onSuccess = {
                 println("Signup successful")
                 _authState.value = AuthState.Authenticated
+                _authState.value = AuthState.UsernameCreated
+                //go to user profile page
+                //NavController.navigate("home")
+
+
             },
             onFailure = { exception ->
                 println("Signup failure: ${exception.message}")
@@ -85,4 +120,5 @@ sealed class AuthState {
     object Unauthenticated : AuthState()
     object Loading : AuthState()
     data class Error(val message: String) : AuthState()
+    object UsernameCreated : AuthState()
 }
