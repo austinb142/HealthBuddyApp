@@ -31,8 +31,7 @@ class AuthViewModel : ViewModel() {
     }
 
     //UserProfile data class for storing user data on RTDB
-    data class UserProfile(val email: String = "", val username: String = "")
-
+    data class UserProfile(val email: String = "", val username: String = "", val bmi: Double? = null)
     private val _userProfile = MutableLiveData<UserProfile>()
     val userProfile: LiveData<UserProfile> = _userProfile
 
@@ -45,7 +44,9 @@ class AuthViewModel : ViewModel() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val email = snapshot.child("email").getValue(String::class.java) ?: ""
                 val username = snapshot.child("username").getValue(String::class.java) ?: ""
-                _userProfile.value = UserProfile(email, username)
+                val bmi = snapshot.child("bmi").getValue(Double::class.java)
+
+                _userProfile.value = UserProfile(email, username, bmi)
             }
             override fun onCancelled(error: DatabaseError) {
                 // Handle error
@@ -107,11 +108,31 @@ class AuthViewModel : ViewModel() {
             })
 
     }
+    
+    fun saveBMI(bmi: Double) {
+        val uid = auth.currentUser?.uid ?: return
+        val bmiRef = FirebaseDatabase.getInstance().getReference("users").child(uid).child("bmi")
+        
+        bmiRef.setValue(bmi)
+            .addOnSuccessListener {
+                Log.d("AuthViewModel", "BMI saved successfully")
+                getUserProfile()
+            }
+            .addOnFailureListener { e ->
+                Log.e("AuthViewModel", "Error saving BMI", e)
+        }
+    }
 
     //logout()
     fun logout() {
         auth.signOut()
         _authState.value = AuthState.Unauthenticated
+    }
+
+    companion object {
+        fun saveBMI(bmi: Double) {
+
+        }
     }
 }
 

@@ -17,7 +17,7 @@ class AuthManager {
         email: String,
         username: String,
         password: String,
-        onSuccess: @Composable () -> Unit,
+        onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
         Log.d("AuthManager", "createUser() called")

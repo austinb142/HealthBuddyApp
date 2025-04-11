@@ -8,7 +8,9 @@ import androidx.navigation.compose.NavHost
 import com.example.healthbuddyapp.pages.HomePage
 import com.example.healthbuddyapp.pages.LoginPage
 import com.example.healthbuddyapp.pages.SignUpPage
-
+import com.example.healthbuddyapp.pages.ActivityPage
+import com.example.healthbuddyapp.pages.DietPage
+import com.example.healthbuddyapp.pages.SleepPage
 
 @Composable
 fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel) {
@@ -23,6 +25,15 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
         }
         composable("home") {
             HomePage(modifier, navController, authViewModel)
+        }
+        composable("activity") {
+            ActivityPage(modifier, navController, authViewModel)
+        }
+        composable("Diet") {
+            DietPage(modifier, navController, authViewModel)
+        }
+        composable("Sleep") {
+            SleepPage(modifier, navController, authViewModel)
         }
     })
 }

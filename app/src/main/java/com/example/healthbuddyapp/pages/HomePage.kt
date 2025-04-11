@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +21,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.healthbuddyapp.AuthState
 import com.example.healthbuddyapp.AuthViewModel
-
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.Button
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
@@ -28,6 +32,8 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
     val userProfile = authViewModel.userProfile.observeAsState()
+
+    var showBMI by remember { mutableStateOf(false) }
 
     LaunchedEffect(authState.value) {
         if (authState.value is AuthState.Authenticated) {
@@ -45,17 +51,57 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
         horizontalAlignment = Alignment.CenterHorizontally
     ){//User Home Page
 
-        userProfile.value?.username?.let { username -> //check if username exists
+        userProfile.value?.let { user ->
             Text(
-                text = "Welcome, $username!",
-                fontSize = 24.sp,
+                text = "Welcome to Health Buddy!, ${user.username}!",
+                fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            userProfile.value?.let { user ->
-                Text(text = "Email: ${user.email}", fontSize = 18.sp)
-                Spacer(modifier = Modifier.height(4.dp))
+            Text(text = "Email: ${user.email}", fontSize = 18.sp)
+            Spacer(modifier = Modifier.height(4.dp))
+
+            //if user has previously calculated BMI
+            //show BMI and allow user to recalculate
+            if (user.bmi != null && !showBMI) {
+                Text(text = "BMI: ${String.format("%.2f", user.bmi)}", fontSize = 18.sp)
+                Button(onClick = {
+                    showBMI = true
+                }) {
+                    Text(text = "Recalculate your BMI")
+                }
+            } else if (showBMI || user.bmi == null)
+            {
+                BMIcalculator(authViewModel = authViewModel,
+                    userBMI = user.bmi,
+                    onBmiCalculated = {
+                        showBMI = false
+                    })
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(onClick = {
+                navController.navigate("activity")
+            }) {
+                Text(text = "Activity Tracker")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(onClick = {
+                navController.navigate("Diet")
+            }) {
+                Text(text = "Diet Tracker")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(onClick = {
+                navController.navigate("Sleep")
+            }) {
+                Text(text = "Sleep Tracker")
             }
         }
 
