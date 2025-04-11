@@ -46,6 +46,16 @@ fun ActivityPage(modifier: Modifier = Modifier, navController: NavController, au
     val database = FirebaseDatabase.getInstance().reference
 
     val currentDate = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())}
+    //activityRef establishes where in FIREBASE RTDB the activity logs will be stored
+    val activityRef = FirebaseDatabase.getInstance().getReference("users/$userId/activityLogs")
+
+    //activity log to a data structure
+    val activityLog = mapOf(
+        "activity" to activityName,
+        "activityLength" to activityLength.toIntOrNull(),
+        "activityDetails" to activityDetails,
+        "timestamp" to System.currentTimeMillis()
+    )
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -106,6 +116,8 @@ fun ActivityPage(modifier: Modifier = Modifier, navController: NavController, au
                         Toast.makeText(context, "Failed to save activity", Toast.LENGTH_SHORT).show()
                     }
                  */
+                //"PUSH" the activity log data to the database under the user's node, under the activityLogs node
+                activityRef.child(activityRef.push().key ?: "entry").setValue(activityLog)
                 Toast.makeText(context, "Activity Saved", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()

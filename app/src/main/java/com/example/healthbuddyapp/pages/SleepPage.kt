@@ -27,14 +27,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.healthbuddyapp.AuthState
 import com.example.healthbuddyapp.AuthViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 
 @Composable
 fun SleepPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
 
     var sleepDuration by remember { mutableStateOf("") }
-
     val context = LocalContext.current
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    val database = FirebaseDatabase.getInstance().getReference("users/$userId/sleepLogs")
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -74,6 +77,15 @@ fun SleepPage(modifier: Modifier = Modifier, navController: NavController, authV
                         Toast.makeText(context, "Failed to save activity", Toast.LENGTH_SHORT).show()
                     }
                  */
+                val sleepHours = sleepDuration.toDoubleOrNull()
+                if (sleepHours != null) {
+                    val logID = database.push().key ?: "entry"
+                    val sleepLog = mapOf(
+                        "hours" to sleepHours,
+                        "timestamp" to System.currentTimeMillis()
+                    )
+                    database.child(logID).setValue(sleepLog)
+                }
                 Toast.makeText(context, "Sleep Duration Logged", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()

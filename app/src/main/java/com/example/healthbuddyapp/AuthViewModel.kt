@@ -46,6 +46,7 @@ class AuthViewModel : ViewModel() {
                 val username = snapshot.child("username").getValue(String::class.java) ?: ""
                 val bmi = snapshot.child("bmi").getValue(Double::class.java)
 
+
                 _userProfile.value = UserProfile(email, username, bmi)
             }
             override fun onCancelled(error: DatabaseError) {

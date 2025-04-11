@@ -44,7 +44,16 @@ fun DietPage(modifier: Modifier = Modifier, navController: NavController, authVi
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     val database = FirebaseDatabase.getInstance().reference
 
+    val dietRef = FirebaseDatabase.getInstance().getReference("users/$userId/dietLogs")
+
     val currentDate = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())}
+
+    val dietLog = mapOf(
+        "mealType" to mealType,
+        "calories" to calorieCount.toIntOrNull(),
+        "description" to mealDescription,
+        "timestamp" to System.currentTimeMillis()
+    )
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -104,6 +113,8 @@ fun DietPage(modifier: Modifier = Modifier, navController: NavController, authVi
                         Toast.makeText(context, "Failed to save activity", Toast.LENGTH_SHORT).show()
                     }
                  */
+
+                dietRef.child(dietRef.push().key ?: "entry").setValue(dietLog)
                 Toast.makeText(context, "Meal has been logged", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
