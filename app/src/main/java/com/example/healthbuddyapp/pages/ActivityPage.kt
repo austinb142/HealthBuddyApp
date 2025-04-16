@@ -31,8 +31,9 @@ import com.example.healthbuddyapp.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import java.text.SimpleDateFormat
-//import java.util
 import java.util.Locale
+
+
 
 @Composable
 fun ActivityPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
@@ -43,19 +44,10 @@ fun ActivityPage(modifier: Modifier = Modifier, navController: NavController, au
 
     val context = LocalContext.current
     val userId = FirebaseAuth.getInstance().currentUser?.uid
-    val database = FirebaseDatabase.getInstance().reference
 
     val currentDate = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())}
     //activityRef establishes where in FIREBASE RTDB the activity logs will be stored
-    val activityRef = FirebaseDatabase.getInstance().getReference("users/$userId/activityLogs")
-
-    //activity log to a data structure
-    val activityLog = mapOf(
-        "activity" to activityName,
-        "activityLength" to activityLength.toIntOrNull(),
-        "activityDetails" to activityDetails,
-        "timestamp" to System.currentTimeMillis()
-    )
+    //val activityRef = FirebaseDatabase.getInstance().getReference("users/$userId/activityLogs")
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -101,24 +93,14 @@ fun ActivityPage(modifier: Modifier = Modifier, navController: NavController, au
         Button(onClick = {
             // Logic to save or process the activity log
             if (activityName.isNotBlank() && activityLength.isNotBlank() && activityDetails.isNotBlank()) {
-                /*
-                val activityData = mapOf(
-                    "activityName/Type" to activityName,
-                    "activityLength" to activityLength,
-                    "activityDetails" to activityDetails
-                )
-                // Save the activity log to Firebase under users/{userId}/activityLogs/{currentDate}
-                database.child("users").child(userId).child("activityLogs").child(currentDate).setValue(activityData)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "Activity Saved", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Failed to save activity", Toast.LENGTH_SHORT).show()
-                    }
-                 */
-                //"PUSH" the activity log data to the database under the user's node, under the activityLogs node
-                activityRef.child(activityRef.push().key ?: "entry").setValue(activityLog)
+                // authviewmodel() for storing data in RTDB
+                authViewModel.saveActivity(activityName, activityLength.toInt(), activityDetails)
                 Toast.makeText(context, "Activity Saved", Toast.LENGTH_SHORT).show()
+                // clear the fields to allow for a new activity to be entered
+                activityName = ""
+                activityLength = ""
+                activityDetails = ""
+
             } else {
                 Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }

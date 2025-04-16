@@ -42,18 +42,7 @@ fun DietPage(modifier: Modifier = Modifier, navController: NavController, authVi
 
     val context = LocalContext.current
     val userId = FirebaseAuth.getInstance().currentUser?.uid
-    val database = FirebaseDatabase.getInstance().reference
 
-    val dietRef = FirebaseDatabase.getInstance().getReference("users/$userId/dietLogs")
-
-    val currentDate = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())}
-
-    val dietLog = mapOf(
-        "mealType" to mealType,
-        "calories" to calorieCount.toIntOrNull(),
-        "description" to mealDescription,
-        "timestamp" to System.currentTimeMillis()
-    )
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -98,23 +87,13 @@ fun DietPage(modifier: Modifier = Modifier, navController: NavController, authVi
         Button(onClick = {
             // Logic to save or process the activity log
             if (mealType.isNotBlank() && calorieCount.isNotBlank() && mealDescription.isNotBlank()) {
-                /* Not code below
-                val activityData = mapOf(
-                    "activityName/Type" to activityName,
-                    "activityLength" to activityLength,
-                    "activityDetails" to activityDetails
-                )
-                // Save the activity log to Firebase under users/{userId}/activityLogs/{currentDate}
-                database.child("users").child(userId).child("activityLogs").child(currentDate).setValue(activityData)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "Activity Saved", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Failed to save activity", Toast.LENGTH_SHORT).show()
-                    }
-                 */
+                //  authViewModel() for storing data in RTDB
+                authViewModel.saveDiet(mealType, calorieCount.toInt(), mealDescription)
+                // clear the fields to enter new diet details
+                mealType = ""
+                calorieCount = ""
+                mealDescription = ""
 
-                dietRef.child(dietRef.push().key ?: "entry").setValue(dietLog)
                 Toast.makeText(context, "Meal has been logged", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()

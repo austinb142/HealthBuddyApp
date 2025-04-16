@@ -4,12 +4,14 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -39,7 +41,7 @@ class AuthViewModel : ViewModel() {
     fun getUserProfile()
     {
         val uid = auth.currentUser?.uid ?: return
-        val ref = FirebaseDatabase.getInstance().getReference("users").child(uid)
+        val ref = FirebaseDatabase.getInstance().getReference("users").child(uid).child("")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val email = snapshot.child("email").getValue(String::class.java) ?: ""
@@ -124,17 +126,69 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun saveActivity(activityName: String, activityLength: Int, activityDetails: String) {
+        val uid = auth.currentUser?.uid ?: return
+        val activityRef =
+            FirebaseDatabase.getInstance().getReference("users").child(uid).child("activityLogs")
+
+        //Use the date as the key node.
+        val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val timeKey = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+        // format the date to YY-MM-DD HH:MM:SS
+        val timestamp = "$dateKey : $timeKey"
+
+        val activityLog = mapOf(
+            "activityName" to activityName,
+            "activityLength" to activityLength,
+            "activityDetails" to activityDetails,
+            "timestamp" to timestamp
+
+        )
+        // Push under: users/{uid}/activityLogs/{dateKey}/{timeKey}
+        //new activity entry transmission
+        activityRef.child(dateKey).child(timeKey).setValue(activityLog)
+            .addOnSuccessListener {
+                Log.d("AuthViewModel", "Activity saved successfully under $dateKey/$timeKey")
+            }
+            .addOnFailureListener { e ->
+                Log.e("AuthViewModel", "Error saving activity", e)
+            }
+    }
+
+    //save diet log to RTDB
+    fun saveDiet(mealType: String, calorieCount: Int, mealDescription: String) {
+        val uid = auth.currentUser?.uid ?: return
+        val dietRef =
+            FirebaseDatabase.getInstance().getReference("users").child(uid).child("dietLogs")
+
+        //Use the date as the key node.
+        val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val timeKey = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+        // format the date to YY-MM-DD HH:MM:SS
+        val timestamp = "$dateKey : $timeKey"
+
+        val dietLog = mapOf(
+            "mealType" to mealType,
+            "calories" to calorieCount,
+            "description" to mealDescription,
+            "timestamp" to timestamp
+        )
+        // push under: (current)user/{uid}/dietLogs/{dateKey}/{timeKey}
+        dietRef.child(dateKey).child(timeKey).setValue(dietLog)
+            .addOnSuccessListener {
+                Log.d("AuthViewModel", "Activity saved successfully under $timestamp")
+            }
+            .addOnFailureListener { e ->
+                Log.e("AuthViewModel", "Error saving activity", e)
+            }
+    }
+
     //logout()
     fun logout() {
         auth.signOut()
         _authState.value = AuthState.Unauthenticated
     }
 
-    companion object {
-        fun saveBMI(bmi: Double) {
-
-        }
-    }
 }
 
 sealed class AuthState {
