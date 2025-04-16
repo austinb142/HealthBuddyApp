@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+
 class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val _authState = MutableLiveData<AuthState>()
@@ -33,7 +34,11 @@ class AuthViewModel : ViewModel() {
     }
 
     //UserProfile data class for storing user data on RTDB
-    data class UserProfile(val email: String = "", val username: String = "", val bmi: Double? = null)
+    data class UserProfile(val email: String = "", val username: String = "", val bmi: Double? = null,
+                           val activityLog: List<ActivityLog> = emptyList(),
+                           val dietLog: List<DietLog> = emptyList(),
+                           val sleepLog: List<SleepLog> = emptyList()
+    )
     private val _userProfile = MutableLiveData<UserProfile>()
     val userProfile: LiveData<UserProfile> = _userProfile
 
@@ -48,8 +53,52 @@ class AuthViewModel : ViewModel() {
                 val username = snapshot.child("username").getValue(String::class.java) ?: ""
                 val bmi = snapshot.child("bmi").getValue(Double::class.java)
 
+                //activity log
+                val activitySnapshot = snapshot.child("activityLogs")
+                val activityLogs = mutableListOf<ActivityLog>()
+                for (dateNode in activitySnapshot.children) {
+                    for (logNode in dateNode.children) {
+                        val log = logNode.getValue(ActivityLog::class.java)
+                        if (log != null) {
+                            activityLogs.add(log)
+                        }
+                    }
+                }
 
-                _userProfile.value = UserProfile(email, username, bmi)
+                //diet log
+                val dietSnapshot = snapshot.child("dietLogs")
+                val dietLogs = mutableListOf<DietLog>()
+                for (dateNode in dietSnapshot.children) {
+                    for (logNode in dateNode.children) {
+                        val log = logNode.getValue(DietLog::class.java)
+                        if (log != null) {
+                            dietLogs.add(log)
+                        }
+                    }
+                }
+
+                //sleep log
+                val sleepSnapshot = snapshot.child("sleepLogs")
+                val sleepLogs = mutableListOf<SleepLog>()
+                for (dateNode in sleepSnapshot.children) {
+                    for (logNode in dateNode.children) {
+                        val log = logNode.getValue(SleepLog::class.java)
+                        if (log != null) {
+                            sleepLogs.add(log)
+                        }
+                    }
+                }
+
+                val user = UserProfile(
+                    username = username,
+                    email = email,
+                    bmi = bmi,
+                    activityLog = activityLogs.sortedByDescending { it.timestamp },
+                    dietLog = dietLogs.sortedByDescending { it.timestamp },
+                    sleepLog = sleepLogs.sortedByDescending { it.timestamp }
+                )
+
+                _userProfile.postValue(user)
             }
             override fun onCancelled(error: DatabaseError) {
                 // Handle error
@@ -111,11 +160,11 @@ class AuthViewModel : ViewModel() {
             })
 
     }
-    
+
     fun saveBMI(bmi: Double) {
         val uid = auth.currentUser?.uid ?: return
         val bmiRef = FirebaseDatabase.getInstance().getReference("users").child(uid).child("bmi")
-        
+
         bmiRef.setValue(bmi)
             .addOnSuccessListener {
                 Log.d("AuthViewModel", "BMI saved successfully")
@@ -123,7 +172,7 @@ class AuthViewModel : ViewModel() {
             }
             .addOnFailureListener { e ->
                 Log.e("AuthViewModel", "Error saving BMI", e)
-        }
+            }
     }
 
     fun saveActivity(activityName: String, activityLength: Int, activityDetails: String) {
@@ -149,6 +198,7 @@ class AuthViewModel : ViewModel() {
         activityRef.child(dateKey).child(timeKey).setValue(activityLog)
             .addOnSuccessListener {
                 Log.d("AuthViewModel", "Activity saved successfully under $dateKey/$timeKey")
+                getUserProfile()        //refresh user profile to show activity
             }
             .addOnFailureListener { e ->
                 Log.e("AuthViewModel", "Error saving activity", e)
@@ -183,6 +233,32 @@ class AuthViewModel : ViewModel() {
             }
     }
 
+    //save sleep()
+    fun saveSleep(sleepDuration: Double) {
+        val uid = auth.currentUser?.uid ?: return
+        val dietRef =
+            FirebaseDatabase.getInstance().getReference("users").child(uid).child("sleepLogs")
+
+        //Use the date as the key node.
+        val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val timeKey = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+        // format the date to YY-MM-DD HH:MM:SS
+        val timestamp = "$dateKey : $timeKey"
+
+        val sleepLog = mapOf(
+            "Hours" to sleepDuration,
+            "timestamp" to timestamp
+        )
+        // push under: (current)user/{uid}/dietLogs/{dateKey}/{timeKey}
+        dietRef.child(dateKey).child(timeKey).setValue(sleepLog)
+            .addOnSuccessListener {
+                Log.d("AuthViewModel", "Sleep saved successfully under $timestamp")
+            }
+            .addOnFailureListener { e ->
+                Log.e("AuthViewModel", "Error saving sleep", e)
+            }
+    }
+
     //logout()
     fun logout() {
         auth.signOut()
@@ -190,6 +266,24 @@ class AuthViewModel : ViewModel() {
     }
 
 }
+
+//data class for Activity
+data class ActivityLog(
+    val activityName: String = "",
+    val activityLength: Int = 0,
+    val activityDetails: String = "",
+    val timestamp: String = ""
+)
+data class DietLog(
+    val mealType: String = "",
+    val calories: Int = 0,
+    val description: String = "",
+    val timestamp: String = ""
+)
+data class SleepLog(
+    val Hours: Double = 0.0,
+    val timestamp: String = ""
+)
 
 sealed class AuthState {
     object Authenticated : AuthState()

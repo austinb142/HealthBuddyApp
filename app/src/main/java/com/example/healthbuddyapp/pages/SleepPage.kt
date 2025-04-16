@@ -62,29 +62,14 @@ fun SleepPage(modifier: Modifier = Modifier, navController: NavController, authV
         Button(onClick = {
             // Logic to save or process the activity log
             if (sleepDuration.isNotBlank()) {
-                /* Not code below
-                val activityData = mapOf(
-                    "activityName/Type" to activityName,
-                    "activityLength" to activityLength,
-                    "activityDetails" to activityDetails
-                )
-                // Save the activity log to Firebase under users/{userId}/activityLogs/{currentDate}
-                database.child("users").child(userId).child("activityLogs").child(currentDate).setValue(activityData)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "Activity Saved", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Failed to save activity", Toast.LENGTH_SHORT).show()
-                    }
-                 */
+
                 val sleepHours = sleepDuration.toDoubleOrNull()
                 if (sleepHours != null) {
-                    val logID = database.push().key ?: "entry"
-                    val sleepLog = mapOf(
-                        "hours" to sleepHours,
-                        "timestamp" to System.currentTimeMillis()
-                    )
-                    database.child(logID).setValue(sleepLog)
+                    //send data to ViewModel for RTDB
+                    authViewModel.saveSleep(sleepHours)
+                    //clear fields to enter new sleep data
+                    sleepDuration = ""
+
                 }
                 Toast.makeText(context, "Sleep Duration Logged", Toast.LENGTH_SHORT).show()
             } else {

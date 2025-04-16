@@ -82,6 +82,23 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            //Displays the most recent activity entry on users profile.
+            if (user.activityLog.isNotEmpty()) {
+                val recentActivity = user.activityLog.first()
+                Text(text =
+                    "Recent Activity:",
+                    fontSize = 18.sp)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(text = "Name: ${recentActivity.activityName}," +
+                        " Length: ${recentActivity.activityLength} minutes," +
+                        " Details: ${recentActivity.activityDetails}",
+                    fontSize = 16.sp
+                )
+            } else {
+                Text(text = "No recent activity found")
+            }
             TextButton(onClick = {
                 navController.navigate("activity")
             }) {
@@ -90,6 +107,23 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            //displays most recent diet entry on users profile
+            if (user.dietLog.isNotEmpty()) {
+                val recentDiet = user.dietLog.first()
+                Text(text =
+                    "Recent Diet:",
+                    fontSize = 18.sp)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(text = "Meal: ${recentDiet.mealType}," +
+                        " Calories: ${recentDiet.calories}," +
+                        " Details: ${recentDiet.description}",
+                    fontSize = 16.sp
+                )
+            } else {
+                Text(text = "No recent Diet found")
+            }
             TextButton(onClick = {
                 navController.navigate("Diet")
             }) {
@@ -98,6 +132,21 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            //displays most recent sleep entry on users profile
+            if (user.sleepLog.isNotEmpty()) {
+                val recentSleep = user.sleepLog.first()
+                Text(text =
+                    "Recent Sleep:",
+                    fontSize = 18.sp)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(text = "Duration: ${recentSleep.Hours} hours,",
+                    fontSize = 16.sp
+                )
+            } else {
+                Text(text = "No recent sleep found")
+            }
             TextButton(onClick = {
                 navController.navigate("Sleep")
             }) {
