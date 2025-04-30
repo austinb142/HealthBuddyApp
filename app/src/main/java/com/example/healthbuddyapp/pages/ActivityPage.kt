@@ -62,7 +62,11 @@ fun ActivityPage(modifier: Modifier = Modifier, navController: NavController, au
         // Input for activity name/type
         OutlinedTextField(
             value = activityName,
-            onValueChange = { activityName = it },
+            onValueChange = { newText ->
+                if (newText.all { it.isLetter() || it.isWhitespace() }) {
+                    activityName = newText
+                }
+            },
             label = { Text(text = "Activity Name/Type") },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         )
@@ -72,7 +76,10 @@ fun ActivityPage(modifier: Modifier = Modifier, navController: NavController, au
         // Input for Activity Length
         OutlinedTextField(
             value = activityLength,
-            onValueChange = { activityLength = it },
+            onValueChange = { newText ->
+                if (newText.all { it.isDigit() || it == '.' }) {
+                    activityLength = newText
+                }},
             label = { Text(text = "Activity Length (in minutes)") },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         )

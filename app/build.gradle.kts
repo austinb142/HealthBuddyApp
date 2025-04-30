@@ -46,6 +46,7 @@ dependencies {
     //implementation("androidx.credentials:credentials:1.5.0")
     implementation("com.google.firebase:firebase-bom:33.10.0")
     implementation("com.google.firebase:firebase-database")
+    implementation("com.google.android.material:material:1.11.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

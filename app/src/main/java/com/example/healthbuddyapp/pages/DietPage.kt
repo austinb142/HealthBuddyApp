@@ -56,7 +56,11 @@ fun DietPage(modifier: Modifier = Modifier, navController: NavController, authVi
         //Meal type input
         OutlinedTextField(
             value = mealType,
-            onValueChange = { mealType = it },
+            onValueChange = { newText ->
+                if (newText.all { it.isLetter() || it.isWhitespace() }) {
+                    mealType = newText
+                }
+            },
             label = { Text(text = "Meal Type") },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         )
@@ -66,7 +70,11 @@ fun DietPage(modifier: Modifier = Modifier, navController: NavController, authVi
         //Calorie Count input
         OutlinedTextField(
             value = calorieCount,
-            onValueChange = { calorieCount = it },
+            onValueChange = { newText ->
+                if (newText.all { it.isDigit() || it == '.' }) {
+                    calorieCount = newText
+                }
+            },
             label = { Text(text = "Calorie Count") },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         )

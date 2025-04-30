@@ -17,6 +17,8 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Pink80
 )
 
+
+
 private val LightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
@@ -32,6 +34,7 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1C1B1F),
     */
 )
+
 
 @Composable
 fun HealthBuddyAppTheme(

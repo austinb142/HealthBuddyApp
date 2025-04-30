@@ -38,13 +38,16 @@ fun BMIcalculator(authViewModel: AuthViewModel, userBMI: Double?, onBmiCalculate
         Button(onClick = {
             val weightValue = weight.toDoubleOrNull()
             val heightValue = height.toDoubleOrNull()
-            if (weightValue != null && heightValue != null && heightValue != 0.0 ) {
+            if ((weightValue != null && weightValue > 0.0) && (heightValue != null && heightValue > 0.0)) {
+
                 bmi = weightValue / (heightValue * heightValue)
+
                 authViewModel.saveBMI(bmi!!)
                 authViewModel.getUserProfile()  //refresh user data
                 onBmiCalculated()               //collapse calculator
             } else {
                 bmi = null
+
             }
         }) {
             Text("Calculate BMI")

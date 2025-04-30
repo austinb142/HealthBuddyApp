@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.doubleFromBits
 import androidx.navigation.NavController
 import com.example.healthbuddyapp.AuthState
 import com.example.healthbuddyapp.AuthViewModel
@@ -51,7 +52,10 @@ fun SleepPage(modifier: Modifier = Modifier, navController: NavController, authV
         //Sleep log inputs
         OutlinedTextField(
             value = sleepDuration,
-            onValueChange = { sleepDuration = it },
+            onValueChange = { newText ->
+                if (newText.all { it.isDigit() || it == '.' }) {
+                    sleepDuration = newText
+                } },
             label = { Text(text = "Sleep Duration") },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         )
@@ -64,7 +68,8 @@ fun SleepPage(modifier: Modifier = Modifier, navController: NavController, authV
             if (sleepDuration.isNotBlank()) {
 
                 val sleepHours = sleepDuration.toDoubleOrNull()
-                if (sleepHours != null) {
+                if (sleepHours != null)
+                     {
                     //send data to ViewModel for RTDB
                     authViewModel.saveSleep(sleepHours)
                     //clear fields to enter new sleep data
